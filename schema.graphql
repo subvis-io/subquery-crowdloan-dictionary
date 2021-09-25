@@ -81,7 +81,6 @@ type CrowdloanSequence @entity {
   curIndex: Int!
   createdAt: Date! # v1 use new Date()
   blockNum: Int!
-  timestamp: Date!
 }
 
 type CrowdloanRaisedMemo @entity {

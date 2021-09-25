@@ -38,6 +38,7 @@ export async function onCrowdloanCreated(substrateEvent: SubstrateEvent) {
   const [fundIdx] = event.data.toJSON() as [number];
   await Storage.ensureParachain(fundIdx);
   const fund = await Storage.ensureFund(fundIdx, { blockNum });
+  logger.info(`Block: ${blockNum} - timestamp: ${timestamp}`);
   logger.info(`Create Crowdloan: ${JSON.stringify(fund, null, 2)}`);
 
   const { raised, status } = fund;
