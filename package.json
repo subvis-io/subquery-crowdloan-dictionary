@@ -26,9 +26,9 @@
   },
   "resolutions": {
     "@polkadot/api": "^5.7.1",
-    "@subql/node": "^0.20.3"
+    "@subql/node": "^0.21.1"
   },
   "dependencies": {
-    "@subql/node": "^0.20.3"
+    "@subql/node": "^0.21.1"
   }
 }

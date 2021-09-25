@@ -8,7 +8,7 @@ network:
 dataSources:
   - name: main
     kind: substrate/Runtime
-    startBlock: 8800000 #7826757
+    startBlock: 7828270
     mapping:
       handlers:
         - handler: handleParachainRegistered

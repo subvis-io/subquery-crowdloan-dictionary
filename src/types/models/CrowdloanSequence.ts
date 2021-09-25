@@ -18,6 +18,8 @@ export class CrowdloanSequence implements Entity {
 
     public blockNum: number;
 
+    public timestamp: Date;
+
 
     async save(): Promise<void>{
         let id = this.id;

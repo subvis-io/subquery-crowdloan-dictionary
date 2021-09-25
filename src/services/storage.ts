@@ -92,6 +92,7 @@ export const ensureFund = async (paraId: number, modifier?: Record<string, any>)
 export const getLatestCrowdloanId = async (parachainId: string) => {
   const seq = await CrowdloanSequence.get(parachainId);
   const curBlockNum = await api.query.system.number();
+  const timestamp = await api.query.timestamp.now();
   if (seq) {
     const crowdloanIdx = seq.curIndex;
     const isReCreateCrowdloan = await getIsReCreateCrowdloan(`${parachainId}-${crowdloanIdx}`);
@@ -107,7 +108,13 @@ export const getLatestCrowdloanId = async (parachainId: string) => {
     return `${parachainId}-${curIdex}`;
   }
 
-  await CrowdloanSequence.create({ id: parachainId, curIndex: 0, createdAt: new Date(), blockNum: curBlockNum }).save();
+  await CrowdloanSequence.create({
+    id: parachainId,
+    curIndex: 0,
+    timestamp,
+    createdAt: new Date(),
+    blockNum: curBlockNum
+  }).save();
   logger.info(`Crowdloan: ${parachainId} fundId: 0`);
   return `${parachainId}-0`;
 };
