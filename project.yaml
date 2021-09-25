@@ -1,0 +1,48 @@
+specVersion: 0.0.1
+description: Allow users to query crowdloan and auction data from Kusama/Polkadot
+repository: ''
+schema: ./schema.graphql
+network:
+  endpoint: 'wss://kusama.api.onfinality.io/public-ws'
+  dictionary: 'https://api.subquery.network/sq/subquery/dictionary-kusama'
+dataSources:
+  - name: main
+    kind: substrate/Runtime
+    startBlock: 8800000 #7826757
+    mapping:
+      handlers:
+        - handler: handleParachainRegistered
+          kind: substrate/EventHandler
+          filter:
+            module: registrar
+            method: Registered
+        - handler: handleCrowdloanCreated
+          kind: substrate/EventHandler
+          filter:
+            module: crowdloan
+            method: Created
+        - handler: handleCrowdloanContributed
+          kind: substrate/EventHandler
+          filter:
+            module: crowdloan
+            method: Contributed
+        - handler: handleCrowdloanAllRefunded
+          kind: substrate/EventHandler
+          filter:
+            module: crowdloan
+            method: AllRefunded
+        - handler: handleCrowdloanDissolved
+          kind: substrate/EventHandler
+          filter:
+            module: crowdloan
+            method: Dissolved
+        - handler: handleSlotsLeased
+          kind: substrate/EventHandler
+          filter:
+            module: slots
+            method: Leased
+        - handler: handleNewLeasePeriod
+          kind: substrate/EventHandler
+          filter:
+            module: slots
+            method: NewLeasePeriod

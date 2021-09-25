@@ -1,0 +1,34 @@
+{
+  "name": "subquery-spectator-v2",
+  "version": "1.0.0",
+  "description": "Allow users to query crowdloan and auction data from Kusama/Polkadot",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc -b",
+    "prepack": "rm -rf dist && npm build",
+    "test": "jest",
+    "codegen": "./node_modules/.bin/subql codegen"
+  },
+  "homepage": "https://github.com/subquery/subql-starter",
+  "repository": "github:subquery/subql-starter",
+  "files": [
+    "dist",
+    "schema.graphql",
+    "project.yaml"
+  ],
+  "author": "Cherry",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "@polkadot/api": "^5.7.1",
+    "@subql/types": "latest",
+    "typescript": "^4.1.3",
+    "@subql/cli": "latest"
+  },
+  "resolutions": {
+    "@polkadot/api": "^5.7.1",
+    "@subql/node": "^0.20.3"
+  },
+  "dependencies": {
+    "@subql/node": "^0.20.3"
+  }
+}

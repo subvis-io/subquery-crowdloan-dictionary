@@ -1,0 +1,135 @@
+type StarterEntity @entity {
+  id: ID! #id is a required field
+  field1: Int!
+
+  field2: String #filed2 is an optional field
+  field3: BigInt
+
+  field4: Date
+
+  field5: Boolean
+}
+
+type Chronicle @entity {
+  id: ID! # Static 'ChronicleKey'
+  curAuction: Auction
+  curBlockNum: Int #TODO:Review
+  curLease: Int
+  curLeaseStart: Int
+  curLeaseEnd: Int
+  parachains: [Parachain] @derivedFrom(field: "chronicle")
+}
+
+type Parachain @entity {
+  id: ID!
+  paraId: Int!
+  createdAt: Date
+  creationBlock: Int
+  deregistered: Boolean!
+  deposit: BigInt!
+  manager: String!
+  leases: [ParachainLeases] @derivedFrom(field: "parachain")
+  bids: [Bid] @derivedFrom(field: "parachain")
+  funds: [Crowdloan] @derivedFrom(field: "parachain")
+  # activeFund: Crowdloan
+  # latestBid: Bid
+  chronicle: Chronicle
+}
+
+type ParachainLeases @entity {
+  id: ID! # paraId-leaseRange-auction
+  paraId: Int!
+  parachain: Parachain! @index
+  leaseRange: String! @index #auctionId-start-end
+  firstLease: Int!
+  lastLease: Int!
+  latestBidAmount: BigInt!
+  auction: Auction @index
+  activeForAuction: String @index #auctionId or 'sudo'
+  winningAmount: BigInt
+  extraAmount: BigInt
+  wonBidFrom: String
+  numBlockWon: Int #TODO:Review
+  winningResultBlock: Int
+  hasWon: Boolean! @index
+}
+
+type Crowdloan @entity {
+  id: ID! # generated fund address
+  parachain: Parachain!
+  depositor: String!
+  verifier: String
+  cap: BigInt!
+  raised: BigInt! @index
+  lockExpiredBlock: Int!
+  blockNum: Int
+  firstSlot: Int!
+  lastSlot: Int!
+  status: String! @index
+  leaseExpiredBlock: Int
+  dissolvedBlock: Int
+  updatedAt: Date
+  createdAt: Date
+  isFinished: Boolean @index
+  wonAuctionId: String @index
+  contributions: [Contribution] @derivedFrom(field: "fund")
+  crowdloanRaisedMemo: [CrowdloanRaisedMemo] @derivedFrom(field: "fund")
+}
+
+type CrowdloanSequence @entity {
+  id: ID!
+  curIndex: Int!
+  createdAt: Date!
+  blockNum: Int!
+}
+
+type CrowdloanRaisedMemo @entity {
+  id: ID!
+  fund: Crowdloan!
+  locked: BigInt!
+  status: String! @index
+  timestamp: Date! @index
+  blockNum: Int!
+}
+
+type Contribution @entity {
+  id: ID!
+  account: String! @index
+  parachain: Parachain!
+  fund: Crowdloan!
+  amount: BigInt! @index
+  blockNum: Int! @index
+  createdAt: Date!
+}
+
+type Auction @entity {
+  id: ID! #id is a required field
+  blockNum: Int!
+  status: String! @index
+  bids: [Bid]! @derivedFrom(field: "auction")
+  # winningBids: [WinningBid]! @derivedFrom(field: "auction")
+  leaseStart: Int
+  slotsStart: Int!
+  leaseEnd: Int
+  slotsEnd: Int!
+  closingStart: Int!
+  closingEnd: Int!
+  resultBlock: Int
+  ongoing: Boolean! @index
+  parachainLeases: [ParachainLeases] @derivedFrom(field: "auction")
+}
+
+type Bid @entity {
+  id: ID!
+  auction: Auction!
+  winningAuction: Int @index # auctionId
+  blockNum: Int! @index
+  parachain: Parachain!
+  isCrowdloan: Boolean!
+  amount: BigInt!
+  fund: Crowdloan
+  firstSlot: Int!
+  lastSlot: Int!
+  bidder: String
+  createdAt: Date!
+}
