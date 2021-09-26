@@ -22,6 +22,8 @@ export class Crowdloan implements Entity {
 
     public raised: bigint;
 
+    public deposit: bigint;
+
     public lockExpiredBlock: number;
 
     public blockNum?: number;

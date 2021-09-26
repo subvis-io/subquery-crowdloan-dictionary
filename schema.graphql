@@ -61,6 +61,7 @@ type Crowdloan @entity {
   verifier: String
   cap: BigInt!
   raised: BigInt! @index
+  deposit: BigInt!
   lockExpiredBlock: Int!
   blockNum: Int
   firstSlot: Int!

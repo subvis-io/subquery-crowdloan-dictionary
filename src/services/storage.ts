@@ -58,7 +58,13 @@ export const ensureFund = async (paraId: number, modifier?: Record<string, any>)
   const fundId = await getLatestCrowdloanId(parachainId);
   const { cap, end, trieIndex, raised, lastContribution, firstPeriod, lastPeriod, deposit, ...rest } =
     fund || ({} as CrowdloanReturn);
-  logger.info(`Fund detail: ${JSON.stringify(fund, null, 2)} - cap: ${cap} - raised: ${raised}`);
+  logger.info(
+    `Fund detail: ${JSON.stringify(
+      fund,
+      null,
+      2
+    )} - cap: ${cap} - raised: ${raised} - typeof Desposit ${typeof deposit}`
+  );
 
   return upsert<Crowdloan>('Crowdloan', fundId, null, (cur: Crowdloan) => {
     return !cur
@@ -71,6 +77,7 @@ export const ensureFund = async (paraId: number, modifier?: Record<string, any>)
           status: CrowdloanStatus.STARTED,
           raised: parseNumber(raised) as unknown as bigint,
           cap: parseNumber(cap) as unknown as bigint,
+          deposit: parseNumber(deposit) as unknown as bigint,
           lockExpiredBlock: end,
           isFinished: false,
           ...modifier
@@ -84,6 +91,7 @@ export const ensureFund = async (paraId: number, modifier?: Record<string, any>)
               : (parseNumber(raised) as unknown as bigint),
           cap:
             cap === undefined ? (parseBigInt(cur.cap) as unknown as bigint) : (parseNumber(cap) as unknown as bigint),
+          deposit: parseNumber(deposit) as unknown as bigint,
           ...modifier
         };
   });
