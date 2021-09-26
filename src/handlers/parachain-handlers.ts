@@ -40,18 +40,6 @@ export async function onCrowdloanCreated(substrateEvent: SubstrateEvent) {
   const fund = await Storage.ensureFund(fundIdx, { blockNum });
   logger.info(`Block: ${blockNum} - timestamp: ${timestamp}`);
   logger.info(`Create Crowdloan: ${JSON.stringify(fund, null, 2)}`);
-
-  const { raised, status } = fund;
-  const crowdloanRaisedMemo = {
-    id: `${fundIdx}-${blockNum}-${idx}`,
-    fundId: fund.id,
-    locked: raised,
-    status,
-    timestamp,
-    blockNum
-  };
-  await Storage.save('CrowdloanRaisedMemo', crowdloanRaisedMemo);
-  logger.info(`Save CrowdloanRaisedMemo: ${JSON.stringify(crowdloanRaisedMemo, null, 2)}`);
 }
 
 export const onCrowdloanContributed = async (substrateEvent: SubstrateEvent) => {
