@@ -93,7 +93,7 @@ export const onCrowdloanAllRefunded = async (substrateEvent: SubstrateEvent) => 
   const crowdloanRaisedMemo = {
     id: `${fundIdx}-${blockNum}-${idx}`,
     fundId,
-    locked: BigInt(0),
+    locked: 0 as unknown as BigInt,
     status: CrowdloanStatus.RETIRING,
     timestamp,
     blockNum
@@ -117,7 +117,7 @@ export const onCrowdloanDissolved = async (substrateEvent: SubstrateEvent) => {
   const crowdloanRaisedMemo = {
     id: `${fundIdx}-${blockNum}-${idx}`,
     fundId: fund.id,
-    locked: BigInt(0),
+    locked: 0 as unknown as BigInt,
     status: CrowdloanStatus.DISSOLVED,
     timestamp,
     blockNum

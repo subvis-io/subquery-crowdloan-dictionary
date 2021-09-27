@@ -86,7 +86,7 @@ export const ensureFund = async (paraId: number, modifier?: Record<string, any>)
               : (parseNumber(raised) as unknown as bigint),
           cap:
             cap === undefined ? (parseBigInt(cur.cap) as unknown as bigint) : (parseNumber(cap) as unknown as bigint),
-          deposit: parseNumber(deposit) as unknown as bigint,
+          deposit: deposit === undefined ? (parseBigInt(cur.deposit) as unknown as bigint) : parseNumber(deposit) as unknown as bigint,
           ...modifier
         };
   });
