@@ -2,8 +2,6 @@
 
 // Auto-generated , DO NOT EDIT
 
-export {StarterEntity} from "./StarterEntity"
-
 export {Chronicle} from "./Chronicle"
 
 export {Parachain} from "./Parachain"
@@ -19,6 +17,8 @@ export {CrowdloanRaisedMemo} from "./CrowdloanRaisedMemo"
 export {Contribution} from "./Contribution"
 
 export {Auction} from "./Auction"
+
+export {AuctionParachain} from "./AuctionParachain"
 
 export {Bid} from "./Bid"
 

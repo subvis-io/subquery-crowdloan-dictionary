@@ -1,15 +1,3 @@
-type StarterEntity @entity {
-  id: ID! #id is a required field
-  field1: Int!
-
-  field2: String #filed2 is an optional field
-  field3: BigInt
-
-  field4: Date
-
-  field5: Boolean
-}
-
 type Chronicle @entity {
   id: ID! # Static 'ChronicleKey'
   curAuction: Auction
@@ -118,6 +106,16 @@ type Auction @entity {
   resultBlock: Int
   ongoing: Boolean! @index
   parachainLeases: [ParachainLeases] @derivedFrom(field: "auction")
+}
+
+type AuctionParachain @entity {
+  id: ID!
+  auction: Auction!
+  parachain: Parachain!
+  blockNum: Int!
+  createdAt: Date!
+  firstSlot: Int!
+  lastSlot: Int!
 }
 
 type Bid @entity {
