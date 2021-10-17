@@ -8,7 +8,7 @@ network:
 dataSources:
   - name: main
     kind: substrate/Runtime
-    startBlock: 7828270 #7862400 lease 13 created
+    startBlock: 7828000
     mapping:
       handlers:
         - handler: handleParachainRegistered
@@ -46,3 +46,23 @@ dataSources:
           filter:
             module: slots
             method: NewLeasePeriod
+        - handler: handleAuctionStarted
+          kind: substrate/EventHandler
+          filter:
+            module: auctions
+            method: AuctionStarted
+        - handler: handleAuctionClosed
+          kind: substrate/EventHandler
+          filter:
+            module: auctions
+            method: AuctionClosed
+        - handler: handleAuctionWinningOffset
+          kind: substrate/EventHandler
+          filter:
+            module: auctions
+            method: WinningOffset
+        - handler: handleBidAccepted
+          kind: substrate/EventHandler
+          filter:
+            module: auctions
+            method: BidAccepted

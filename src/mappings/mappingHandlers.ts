@@ -12,6 +12,7 @@ import {
 } from '../handlers/parachain-handlers';
 import { onSlotsLeased, onNewLeasePeriod } from '../handlers/lease-handlers';
 import { getEventLogger } from '../utils';
+import { onAuctionStarted, onAuctionClosed, onAuctionWinningOffset, onBidAccepted } from '../handlers/auction-handler';
 
 export async function handleParachainRegistered(substrateEvent: SubstrateEvent): Promise<void> {
   getEventLogger(substrateEvent);
@@ -46,6 +47,26 @@ export async function handleSlotsLeased(substrateEvent: SubstrateEvent): Promise
 export async function handleNewLeasePeriod(substrateEvent: SubstrateEvent): Promise<void> {
   getEventLogger(substrateEvent);
   await onNewLeasePeriod(substrateEvent);
+}
+
+export async function handleAuctionStarted(substrateEvent: SubstrateEvent): Promise<void> {
+  getEventLogger(substrateEvent);
+  await onAuctionStarted(substrateEvent);
+}
+
+export async function handleAuctionClosed(substrateEvent: SubstrateEvent): Promise<void> {
+  getEventLogger(substrateEvent);
+  await onAuctionClosed(substrateEvent);
+}
+
+export async function handleAuctionWinningOffset(substrateEvent: SubstrateEvent): Promise<void> {
+  getEventLogger(substrateEvent);
+  await onAuctionWinningOffset(substrateEvent);
+}
+
+export async function handleBidAccepted(substrateEvent: SubstrateEvent): Promise<void> {
+  getEventLogger(substrateEvent);
+  await onBidAccepted(substrateEvent);
 }
 
 const init = async () => {
