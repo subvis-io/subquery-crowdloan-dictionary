@@ -37,7 +37,8 @@ type ParachainLeases @entity {
   winningAmount: BigInt
   extraAmount: BigInt
   wonBidFrom: String
-  numBlockWon: Int #TODO:Review
+  numBlockWon: Int
+  lastBidBlock: Int #count the numberBlockWon until another para bid
   winningResultBlock: Int
   hasWon: Boolean! @index
 }
