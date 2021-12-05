@@ -16,7 +16,7 @@ export const onNewLeasePeriod = async (substrateEvent: SubstrateEvent) => {
   await Storage.upsert('Chronicle', ChronicleKey, {
     curLease: leaseIdx,
     curLeaseStart: blockNum,
-    curLeaseEnd: blockNum + leasePeriod - 1
+    curLeaseEnd: blockNum + leasePeriod - 1,
   });
   logger.info('Update new lease period on Chronicle');
 
@@ -66,7 +66,11 @@ export const onSlotsLeased = async (substrateEvent: SubstrateEvent) => {
   );
 
   const [ongoingAuction] = await Auction.getByOngoing(true);
-  const curAuction = ongoingAuction || { id: 'unknown', resultBlock: blockNum, leaseEnd: null };
+  const curAuction = ongoingAuction || {
+    id: 'unknown',
+    resultBlock: blockNum,
+    leaseEnd: null,
+  };
 
   if (curAuction.id === 'unknown') {
     logger.info('No active auction found, sudo or system parachain, upsert unknown Auction');
@@ -78,7 +82,7 @@ export const onSlotsLeased = async (substrateEvent: SubstrateEvent) => {
       slotsEnd: 0,
       closingStart: 0,
       closingEnd: 0,
-      ongoing: false
+      ongoing: false,
     });
   }
 
@@ -88,24 +92,10 @@ export const onSlotsLeased = async (substrateEvent: SubstrateEvent) => {
     const fund = await Storage.ensureFund(paraId, {
       status: CrowdloanStatus.WON,
       wonAuctionId: curAuction.id,
-      leaseExpiredBlock: curAuction.leaseEnd
+      leaseExpiredBlock: curAuction.leaseEnd,
     }).catch((err) => {
       logger.error(`Upsert Crowdloan failed ${err}`);
     });
-
-    if (fund) {
-      const { id: fundId, raised, status } = fund;
-      const crowdloanRaisedMemo = {
-        id: `${paraId} - ${blockNum} - ${idx}`,
-        fundId,
-        locked: raised,
-        status,
-        timestamp,
-        blockNum
-      };
-      await Storage.save('CrowdloanRaisedMemo', crowdloanRaisedMemo);
-      logger.info(`Save CrowdloanRaisedMemo: ${JSON.stringify(crowdloanRaisedMemo, null, 2)}`);
-    }
   }
 
   const { id: auctionId, resultBlock } = curAuction;
@@ -124,7 +114,7 @@ export const onSlotsLeased = async (substrateEvent: SubstrateEvent) => {
     winningAmount: totalUsed,
     wonBidFrom: from,
     winningResultBlock: resultBlock,
-    hasWon: true
+    hasWon: true,
   }).catch((err) => {
     logger.error(`Upsert ParachainLeases failed ${err}`);
   });

@@ -27,7 +27,7 @@ export const onAuctionStarted = async (substrateEvent: SubstrateEvent) => {
     createdAt,
     closingStart: auctionEnds,
     ongoing: true,
-    closingEnd: auctionEnds + endingPeriod
+    closingEnd: auctionEnds + endingPeriod,
   });
 
   const chronicle = await Chronicle.get(ChronicleKey);
@@ -37,13 +37,30 @@ export const onAuctionStarted = async (substrateEvent: SubstrateEvent) => {
   logger.info(`Auction ${auctionId} saved`);
 };
 
+//  NOTE: cal numberBlockWon
+const finalizedWinningBlocks = async (auctionId: string, curBlockNum: number) => {
+  const leases = await ParachainLeases.getByAuctionId(auctionId || '');
+  const pendingSortLeases = leases.filter((lease) => !!lease.lastBidBlock);
+  for (const lease of pendingSortLeases) {
+    lease.numBlockWon = (lease.numBlockWon || 0) + (curBlockNum - lease.lastBidBlock);
+    lease.lastBidBlock = null;
+    await lease.save();
+  }
+};
+
 export const onAuctionClosed = async (substrateEvent: SubstrateEvent) => {
-  const { event } = substrateEvent;
+  const { event, block } = substrateEvent;
+  const { block: rawBlock } = block;
+  const blockNum = rawBlock.header.number.toNumber();
+
   const [auctionId] = event.data.toJSON() as [number];
   const auction = await Auction.get(auctionId.toString());
   auction.status = 'Closed';
   auction.ongoing = false;
   await auction.save();
+
+  await finalizedWinningBlocks(`${auctionId}`, blockNum);
+
   const chronicle = await Chronicle.get(ChronicleKey);
   chronicle.curAuctionId = null;
   chronicle.save();
@@ -75,7 +92,8 @@ const markParachainLeases = async (
   paraId: number,
   leaseStart: number,
   leaseEnd: number,
-  bidAmount: number
+  bidAmount: number,
+  curBlockNum: number
 ) => {
   const leaseRange = `${auctionId}-${leaseStart}-${leaseEnd}`;
   const { id: parachainId } = await Storage.ensureParachain(paraId);
@@ -83,6 +101,11 @@ const markParachainLeases = async (
   const losingLeases = winningLeases.filter((lease) => lease.paraId !== paraId);
   for (const lease of losingLeases) {
     lease.activeForAuction = null;
+
+    // NOTE: cal numberBlockWon
+    lease.numBlockWon = (lease.numBlockWon || 0) + (lease.lastBidBlock ? curBlockNum - lease.lastBidBlock : 0);
+    lease.lastBidBlock = null;
+
     await lease.save();
     logger.info(`Mark losing parachain leases ${lease.paraId} for ${lease.leaseRange}`);
   }
@@ -95,8 +118,28 @@ const markParachainLeases = async (
     auctionId: auctionId?.toString(),
     latestBidAmount: bidAmount,
     activeForAuction: auctionId?.toString(),
-    hasWon: false
+    hasWon: false,
   });
+};
+
+// NOTE: cal numberBlockWon when onBidAccepted
+const markWinningBlock = async (
+  auctionId: number,
+  paraId: number,
+  leaseStart: number,
+  leaseEnd: number,
+  blockNum: number
+) => {
+  const leaseRange = `${auctionId}-${leaseStart}-${leaseEnd}`;
+  const winningLeases = (await ParachainLeases.getByLeaseRange(leaseRange)) || [];
+
+  const winBidPara = winningLeases.find((lease) => lease.paraId === paraId);
+  if (winBidPara?.lastBidBlock !== null && blockNum < leaseEnd) {
+    winBidPara.numBlockWon = (winBidPara.numBlockWon || 0) + (blockNum - winBidPara.lastBidBlock);
+  }
+
+  winBidPara.lastBidBlock = blockNum;
+  await winBidPara.save();
 };
 
 /**
@@ -135,14 +178,16 @@ export const onBidAccepted = async (substrateEvent: SubstrateEvent) => {
     lastSlot,
     createdAt,
     fundId: isFund ? fundId : null,
-    bidder: isFund ? null : from
+    bidder: isFund ? null : from,
   };
 
   logger.info(`Bid detail: ${JSON.stringify(bid, null, 2)}`);
   const { id: bidId } = await Storage.save('Bid', bid);
   logger.info(`Bid saved: ${bidId}`);
 
-  await markParachainLeases(auctionId, paraId, firstSlot, lastSlot, bidAmount);
+  await markParachainLeases(auctionId, paraId, firstSlot, lastSlot, bidAmount, blockNum);
+
+  await markWinningBlock(auctionId, paraId, firstSlot, lastSlot, blockNum);
 
   await markLosingBids(auctionId, firstSlot, lastSlot, bidId);
 
@@ -156,7 +201,7 @@ export const onBidAccepted = async (substrateEvent: SubstrateEvent) => {
       firstSlot,
       lastSlot,
       createdAt,
-      blockNum
+      blockNum,
     });
     logger.info(`Create AuctionParachain: ${id}`);
   }

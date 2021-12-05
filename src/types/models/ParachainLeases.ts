@@ -36,6 +36,8 @@ export class ParachainLeases implements Entity {
 
     public numBlockWon?: number;
 
+    public lastBidBlock?: number;
+
     public winningResultBlock?: number;
 
     public hasWon: boolean;

@@ -12,8 +12,6 @@ export {Crowdloan} from "./Crowdloan"
 
 export {CrowdloanSequence} from "./CrowdloanSequence"
 
-export {CrowdloanRaisedMemo} from "./CrowdloanRaisedMemo"
-
 export {Contribution} from "./Contribution"
 
 export {Auction} from "./Auction"
