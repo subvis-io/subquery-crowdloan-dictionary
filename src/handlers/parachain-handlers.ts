@@ -26,7 +26,7 @@ export async function onParachainRegistered(substrateEvent: SubstrateEvent): Pro
     manager,
     deposit,
     creationBlock: blockNum,
-    deregistered: false
+    deregistered: false,
   });
   logger.info(`new Parachain saved: ${JSON.stringify(parachain, null, 2)}`);
 }
@@ -62,66 +62,22 @@ export const onCrowdloanContributed = async (substrateEvent: SubstrateEvent) => 
     fundId,
     amount: amtValue,
     createdAt,
-    blockNum
+    blockNum,
   };
 
   logger.info(`contribution for ${JSON.stringify(contribution, null, 2)}`);
   await Storage.save('Contribution', contribution);
-
-  const crowdloanRaisedMemo = {
-    id: `${fundIdx}-${blockNum}-${idx}`,
-    fundId: fund.id,
-    locked: raised,
-    status,
-    timestamp: createdAt,
-    blockNum
-  };
-  await Storage.save('CrowdloanRaisedMemo', crowdloanRaisedMemo);
-  logger.info(`Save CrowdloanRaisedMemo: ${JSON.stringify(crowdloanRaisedMemo, null, 2)}`);
-};
-
-export const onCrowdloanAllRefunded = async (substrateEvent: SubstrateEvent) => {
-  const { event, block, idx } = substrateEvent;
-  const { timestamp, block: rawBlock } = block;
-  const blockNum = rawBlock.header.number.toNumber();
-  const [fundIdx] = event.data.toJSON() as [number];
-  const fund = await Storage.ensureFund(fundIdx, {
-    status: CrowdloanStatus.RETIRING
-  });
-
-  const { id: fundId } = fund;
-  const crowdloanRaisedMemo = {
-    id: `${fundIdx}-${blockNum}-${idx}`,
-    fundId,
-    locked: 0 as unknown as BigInt,
-    status: CrowdloanStatus.RETIRING,
-    timestamp,
-    blockNum
-  };
-  await Storage.save('CrowdloanRaisedMemo', crowdloanRaisedMemo);
-  logger.info(`Save CrowdloanRaisedMemo: ${JSON.stringify(crowdloanRaisedMemo, null, 2)}`);
 };
 
 export const onCrowdloanDissolved = async (substrateEvent: SubstrateEvent) => {
-  const { event, block, idx } = substrateEvent;
+  const { event, block } = substrateEvent;
   const { timestamp, block: rawBlock } = block;
   const blockNum = rawBlock.header.number.toNumber();
   const [fundIdx] = event.data.toJSON() as [number];
-  const fund = await Storage.ensureFund(fundIdx, {
+  await Storage.ensureFund(fundIdx, {
     status: CrowdloanStatus.DISSOLVED,
     isFinished: true,
-    updatedAt: timestamp,
-    dissolvedBlock: blockNum
+    updatedAt: new Date(timestamp),
+    dissolvedBlock: blockNum,
   });
-
-  const crowdloanRaisedMemo = {
-    id: `${fundIdx}-${blockNum}-${idx}`,
-    fundId: fund.id,
-    locked: 0 as unknown as BigInt,
-    status: CrowdloanStatus.DISSOLVED,
-    timestamp,
-    blockNum
-  };
-  await Storage.save('CrowdloanRaisedMemo', crowdloanRaisedMemo);
-  logger.info(`Save CrowdloanRaisedMemo: ${JSON.stringify(crowdloanRaisedMemo, null, 2)}`);
 };

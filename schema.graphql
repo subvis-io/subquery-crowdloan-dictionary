@@ -62,22 +62,12 @@ type Crowdloan @entity {
   isFinished: Boolean @index
   wonAuctionId: String @index
   contributions: [Contribution] @derivedFrom(field: "fund")
-  crowdloanRaisedMemo: [CrowdloanRaisedMemo] @derivedFrom(field: "fund")
 }
 
 type CrowdloanSequence @entity {
   id: ID!
   curIndex: Int!
   createdAt: Date! # v1 use new Date()
-  blockNum: Int!
-}
-
-type CrowdloanRaisedMemo @entity {
-  id: ID!
-  fund: Crowdloan!
-  locked: BigInt!
-  status: String! @index
-  timestamp: Date! @index
   blockNum: Int!
 }
 
