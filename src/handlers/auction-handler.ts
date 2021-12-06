@@ -162,13 +162,15 @@ export const onBidAccepted = async (substrateEvent: SubstrateEvent) => {
   ];
   const auctionId = (await api.query.auctions.auctionCounter()).toJSON() as number;
   const isFund = isFundAddress(from);
+  const fromStr = from.toString();
+  // logger.info(`Bid - from: ${from} toString: ${fromStr} toHex: ${from.toHex()}`);
   const parachain = await Storage.ensureParachain(paraId);
   const { id: parachainId } = parachain;
 
   const fundId = await Storage.getLatestCrowdloanId(parachainId);
   const bidAmount = parseNumber(amount);
   const bid = {
-    id: `${blockNum}-${from}-${paraId}-${firstSlot}-${lastSlot}`,
+    id: `${blockNum}-${fromStr}-${paraId}-${firstSlot}-${lastSlot}`,
     auctionId: `${auctionId}`,
     blockNum,
     winningAuction: auctionId,
@@ -179,9 +181,8 @@ export const onBidAccepted = async (substrateEvent: SubstrateEvent) => {
     lastSlot,
     createdAt,
     fundId: isFund ? fundId : null,
-    bidder: isFund ? null : from,
+    bidder: isFund ? null : fromStr,
   };
-  logger.info(`Bid - from: ${from.toHex()}`);
   logger.info(`Bid detail: ${JSON.stringify(bid, null, 2)}`);
   const { id: bidId } = await Storage.save('Bid', bid);
   logger.info(`Bid saved: ${bidId}`);
