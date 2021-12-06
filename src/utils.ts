@@ -1,3 +1,4 @@
+import { Address } from '@polkadot/types/interfaces';
 import { SubstrateEvent } from '@subql/types';
 import { CrowdloanReturn, ParachainReturn } from './types';
 
@@ -39,8 +40,8 @@ export const fetchCrowdloan = async (paraId: number): Promise<CrowdloanReturn | 
   return fund.toJSON() as unknown as CrowdloanReturn | null;
 };
 
-export const isFundAddress = (address: string) => {
-  const hexStr = api.createType('Address', address).toHex();
+export const isFundAddress = (address: Address) => {
+  const hexStr = address.toHex();
   return Buffer.from(hexStr.slice(4, 28), 'hex').toString().startsWith('modlpy/cfund');
 };
 
@@ -54,10 +55,10 @@ export const getEventLogger = (event: SubstrateEvent) => {
   const {
     event: { method, section },
     block: {
-      block: { header }
+      block: { header },
     },
     idx,
-    extrinsic
+    extrinsic,
   } = event;
   const eventType = `${section}/${method}`;
   const { method: extMethod, section: extSection } = extrinsic?.extrinsic.method || {};
