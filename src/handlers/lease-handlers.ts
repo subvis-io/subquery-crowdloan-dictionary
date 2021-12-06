@@ -51,7 +51,7 @@ export const onSlotsLeased = async (substrateEvent: SubstrateEvent) => {
     string,
     string
   ];
-
+  const fromStr = from.toString();
   const lastLease = firstLease + leaseCount - 1;
 
   if (IgnoreParachainIds.includes(paraId)) {
@@ -113,7 +113,7 @@ export const onSlotsLeased = async (substrateEvent: SubstrateEvent) => {
     parachainId,
     extraAmount,
     winningAmount: totalUsed,
-    wonBidFrom: from,
+    wonBidFrom: fromStr,
     winningResultBlock: resultBlock,
     hasWon: true,
   }).catch((err) => {
