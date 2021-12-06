@@ -8,6 +8,7 @@ import * as Storage from '../services/storage';
 import { Bid } from '../types/models/Bid';
 import { ParachainLeases } from '../types/models/ParachainLeases';
 import { isFundAddress } from '../utils';
+import { Address } from '@polkadot/types/interfaces';
 
 export const onAuctionStarted = async (substrateEvent: SubstrateEvent) => {
   const endingPeriod = api.consts.auctions.endingPeriod.toJSON() as number;
@@ -152,8 +153,8 @@ export const onBidAccepted = async (substrateEvent: SubstrateEvent) => {
   const { event, block } = substrateEvent;
   const { timestamp: createdAt, block: rawBlock } = block;
   const blockNum = rawBlock.header.number.toNumber();
-  const [from, paraId, amount, firstSlot, lastSlot] = event.data.toJSON() as [
-    string,
+  const [from, paraId, amount, firstSlot, lastSlot] = event.data as unknown as [
+    Address,
     number,
     number | string,
     number,
@@ -180,7 +181,7 @@ export const onBidAccepted = async (substrateEvent: SubstrateEvent) => {
     fundId: isFund ? fundId : null,
     bidder: isFund ? null : from,
   };
-
+  logger.info(`Bid - from: ${from.toHex()}`);
   logger.info(`Bid detail: ${JSON.stringify(bid, null, 2)}`);
   const { id: bidId } = await Storage.save('Bid', bid);
   logger.info(`Bid saved: ${bidId}`);
@@ -206,22 +207,3 @@ export const onBidAccepted = async (substrateEvent: SubstrateEvent) => {
     logger.info(`Create AuctionParachain: ${id}`);
   }
 };
-
-// export const updateBlockNum = async (block: SubstrateBlock) => {
-//   await Storage.upsert<Chronicle>('Chronicle', ChronicleKey, {
-//     curBlockNum: block.block.header.number.toNumber()
-//   });
-// };
-
-// export const updateWinningBlocks = async (block: SubstrateBlock) => {
-//   const { curAuctionId, curBlockNum } = (await Chronicle.get(ChronicleKey)) || {};
-//   const { closingStart, closingEnd } = (await Auction.get(curAuctionId || '')) || {};
-
-//   if (curAuctionId && curBlockNum >= closingStart && curBlockNum < closingEnd) {
-//     const winningLeases = await ParachainLeases.getByActiveForAuction(curAuctionId);
-//     for (const lease of winningLeases) {
-//       lease.numBlockWon = (lease.numBlockWon || 0) + 1;
-//       await lease.save();
-//     }
-//   }
-// };

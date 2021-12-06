@@ -5,6 +5,7 @@ import { Auction } from '../types/models/Auction';
 import { ChronicleKey } from '../constants';
 import { CrowdloanStatus } from '../types';
 import { Crowdloan } from '../types/models/Crowdloan';
+import { Address } from '@polkadot/types/interfaces';
 
 const IgnoreParachainIds = [100, 110, 120, 1];
 
@@ -42,9 +43,9 @@ export const onSlotsLeased = async (substrateEvent: SubstrateEvent) => {
   const { method, section } = extrinsic?.extrinsic.method || {};
   const { timestamp } = block;
   const blockNum = block.block.header.number.toNumber();
-  const [paraId, from, firstLease, leaseCount, extra, total] = event.data.toJSON() as [
+  const [paraId, from, firstLease, leaseCount, extra, total] = event.data as unknown as [
     number,
-    string,
+    Address,
     number,
     number,
     string,
@@ -89,7 +90,7 @@ export const onSlotsLeased = async (substrateEvent: SubstrateEvent) => {
   logger.info(`handleSlotsLeased isFundAddress - from: ${from} - ${isFundAddress(from)}`);
   if (isFundAddress(from)) {
     logger.info(`handleSlotsLeased update - parachain ${paraId} from Started to Won status`);
-    const fund = await Storage.ensureFund(paraId, {
+    await Storage.ensureFund(paraId, {
       status: CrowdloanStatus.WON,
       wonAuctionId: curAuction.id,
       leaseExpiredBlock: curAuction.leaseEnd,
