@@ -53,7 +53,7 @@ export const onSlotsLeased = async (substrateEvent: SubstrateEvent) => {
   ];
   const fromStr = from.toString();
   const parsedFirstLease = parseNumber(firstLease);
-  const lastLease = parsedFirstLease + parseInt(leaseCount) - 1;
+  const lastLease = parseInt(firstLease) + parseInt(leaseCount) - 1;
 
   if (IgnoreParachainIds.includes(paraId)) {
     logger.info(`Ignore testing parachain ${paraId}`);
