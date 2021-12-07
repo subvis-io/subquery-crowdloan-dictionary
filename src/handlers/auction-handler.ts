@@ -43,7 +43,7 @@ const finalizedWinningBlocks = async (auctionId: string, curBlockNum: number) =>
   const leases = await ParachainLeases.getByAuctionId(auctionId || '');
   const pendingSortLeases = leases.filter((lease) => !!lease.lastBidBlock);
   for (const lease of pendingSortLeases) {
-    lease.numBlockWon = (lease.numBlockWon || 0) + (curBlockNum - lease.lastBidBlock);
+    lease.numBlockWon = (lease?.numBlockWon || 0) + (curBlockNum - lease?.lastBidBlock);
     lease.lastBidBlock = null;
     await lease.save();
   }
@@ -126,7 +126,7 @@ const markParachainLeases = async (
 // NOTE: cal numberBlockWon when onBidAccepted
 const markWinningBlock = async (
   auctionId: number,
-  paraId: number,
+  parachainId: string,
   leaseStart: number,
   leaseEnd: number,
   blockNum: number
@@ -134,13 +134,15 @@ const markWinningBlock = async (
   const leaseRange = `${auctionId}-${leaseStart}-${leaseEnd}`;
   const winningLeases = (await ParachainLeases.getByLeaseRange(leaseRange)) || [];
 
-  const winBidPara = winningLeases.find((lease) => lease.paraId === paraId);
-  if (winBidPara?.lastBidBlock !== null && blockNum < leaseEnd) {
-    winBidPara.numBlockWon = (winBidPara.numBlockWon || 0) + (blockNum - winBidPara.lastBidBlock);
-  }
+  const winBidPara = winningLeases.find((lease) => lease.parachainId === parachainId);
+  if (winBidPara) {
+    if (winBidPara.lastBidBlock !== null && blockNum < leaseEnd) {
+      winBidPara.numBlockWon = (winBidPara.numBlockWon || 0) + (blockNum - winBidPara.lastBidBlock);
+    }
 
-  winBidPara.lastBidBlock = blockNum;
-  await winBidPara.save();
+    winBidPara.lastBidBlock = blockNum;
+    await winBidPara.save();
+  }
 };
 
 /**
@@ -189,7 +191,7 @@ export const onBidAccepted = async (substrateEvent: SubstrateEvent) => {
 
   await markParachainLeases(auctionId, paraId, firstSlot, lastSlot, bidAmount, blockNum);
 
-  await markWinningBlock(auctionId, paraId, firstSlot, lastSlot, blockNum);
+  await markWinningBlock(auctionId, parachainId, firstSlot, lastSlot, blockNum);
 
   await markLosingBids(auctionId, firstSlot, lastSlot, bidId);
 
