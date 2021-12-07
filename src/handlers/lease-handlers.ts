@@ -46,13 +46,14 @@ export const onSlotsLeased = async (substrateEvent: SubstrateEvent) => {
   const [paraId, from, firstLease, leaseCount, extra, total] = event.data as unknown as [
     number,
     Address,
-    number,
-    number,
+    string,
+    string,
     string,
     string
   ];
   const fromStr = from.toString();
-  const lastLease = firstLease + leaseCount - 1;
+  const parsedFirstLease = parseNumber(firstLease);
+  const lastLease = parsedFirstLease + parseInt(leaseCount) - 1;
 
   if (IgnoreParachainIds.includes(paraId)) {
     logger.info(`Ignore testing parachain ${paraId}`);
@@ -102,10 +103,10 @@ export const onSlotsLeased = async (substrateEvent: SubstrateEvent) => {
   const { id: auctionId, resultBlock } = curAuction;
   logger.info(`Resolved auction id ${curAuction.id}, resultBlock: ${curAuction.id}, ${curAuction.resultBlock}`);
 
-  await Storage.upsert('ParachainLeases', `${paraId}-${auctionId || 'sudo'}-${firstLease}-${lastLease}`, {
+  await Storage.upsert('ParachainLeases', `${paraId}-${auctionId || 'sudo'}-${parsedFirstLease}-${lastLease}`, {
     paraId,
-    leaseRange: `${auctionId || 'sudo'}-${firstLease}-${lastLease}`,
-    firstLease,
+    leaseRange: `${auctionId || 'sudo'}-${parsedFirstLease}-${lastLease}`,
+    firstLease: parsedFirstLease,
     lastLease,
     latestBidAmount: totalUsed,
     auctionId,
