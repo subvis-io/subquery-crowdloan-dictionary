@@ -84,7 +84,6 @@ export const onCrowdloanMemo = async (substrateEvent: SubstrateEvent) => {
 
   if (!latestContributionBeforeMemo) return;
   latestContributionBeforeMemo.memo = memo;
-  logger.info(`memo for ${JSON.stringify(latestContributionBeforeMemo, null, 2)}`);
   await Storage.save('Contribution', latestContributionBeforeMemo);
 };
 
