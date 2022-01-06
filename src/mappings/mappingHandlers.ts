@@ -7,6 +7,7 @@ import {
   onParachainRegistered,
   onCrowdloanCreated,
   onCrowdloanContributed,
+  onCrowdloanMemo,
   onCrowdloanDissolved,
 } from '../handlers/parachain-handlers';
 import { onSlotsLeased, onNewLeasePeriod } from '../handlers/lease-handlers';
@@ -32,6 +33,11 @@ export async function handleCrowdloanContributed(substrateEvent: SubstrateEvent)
 //   getEventLogger(substrateEvent);
 //   await onCrowdloanAllRefunded(substrateEvent);
 // }
+
+export async function handleCrowdloanMemo(substrateEvent: SubstrateEvent): Promise<void> {
+  getEventLogger(substrateEvent);
+  await onCrowdloanMemo(substrateEvent);
+}
 
 export async function handleCrowdloanDissolved(substrateEvent: SubstrateEvent): Promise<void> {
   getEventLogger(substrateEvent);
