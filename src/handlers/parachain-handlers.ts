@@ -84,6 +84,7 @@ export const onCrowdloanMemo = async (substrateEvent: SubstrateEvent) => {
 
   if (!latestContributionBeforeMemo) return;
   latestContributionBeforeMemo.memo = memo;
+  logger.info(`Adding memo ${memo} for contributor ${contributor} at block ${blockNum}`);
   await Storage.save('Contribution', latestContributionBeforeMemo);
 };
 
