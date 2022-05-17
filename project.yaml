@@ -28,6 +28,11 @@ dataSources:
           filter:
             module: crowdloan
             method: Contributed
+        - handler: handleCrowdloanMemo
+          kind: substrate/EventHandler
+          filter:
+            module: crowdloan
+            method: MemoUpdated
         # - handler: handleCrowdloanAllRefunded
         #   kind: substrate/EventHandler
         #   filter:
@@ -90,6 +95,11 @@ dataSources:
           filter:
             module: crowdloan
             method: Contributed
+        - handler: handleCrowdloanMemo
+          kind: substrate/EventHandler
+          filter:
+            module: crowdloan
+            method: MemoUpdated
         # - handler: handleCrowdloanAllRefunded
         #   kind: substrate/EventHandler
         #   filter:
